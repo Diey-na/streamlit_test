@@ -5,7 +5,6 @@ import plotly.express as px
 import numpy as np
 from PIL import Image
 import yfinance as yf
-import distutils
 
 
 def parameter(df_sp,sector_default_val,cap_default_val):
