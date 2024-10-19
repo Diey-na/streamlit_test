@@ -31,9 +31,9 @@ def parameter(df_sp,sector_default_val,cap_default_val):
 
     return option_sector, dividend_value, profit_value, cap_value
 
-@st.cache
+@st.cache_data
 def read_data():
-    path_data = 'final_version/project/s&p500.csv' 
+    path_data = 's&p500.csv' 
     df_sp = pd.read_csv(path_data)
     return df_sp
 
@@ -118,7 +118,7 @@ if __name__ == "__main__":
     st.title('S&P500 Screener & Stock Analysis')
     st.sidebar.title('Search criteria')
 
-    image = Image.open('final_version/project/stock.jpeg')
+    image = Image.open('stock.jpeg')
     yf.pdr_override()
     _, col_image_2,_ = st.columns([1,3,1])
     with col_image_2:
@@ -179,7 +179,7 @@ if __name__ == "__main__":
                 The graph above shows the evolution of the selected stock price between 31st dec. 2011 and 31 dec. 2021.
                 The indicator on the left is the stock price value in 31st dec. 2021 for the selected company and its evolution between 31st dec. 2011 and 31st dec. 2021.
                 
-                ⚠️⚠️ Theses value are computed based on what the Yahoo Finance API returns !
+                 Theses value are computed based on what the Yahoo Finance API returns !
             """)
 
 
