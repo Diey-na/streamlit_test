@@ -49,36 +49,6 @@ def charger_donnees(uploaded_file, file_type):
     elif file_type == "Parquet":
         return pd.read_parquet(uploaded_file)
 
-# Fonction pour afficher l'analyse descriptive
-def afficher_analyse_descriptive(data):
-    st.subheader("Analyse descriptive des données")
-    
-    # Statistiques de base
-    st.write("Statistiques de base :")
-    st.write(data.describe(include='all'))
-    
-    # Type des données
-    st.write("Types de données pour chaque colonne :")
-    st.write(data.dtypes)
-    
-    # Valeurs manquantes
-    st.write("Nombre de valeurs manquantes par colonne :")
-    missing_values = data.isnull().sum()
-    st.write(missing_values)
-    
-    return missing_values
-
-# Fonction pour afficher les distributions des colonnes numériques
-def afficher_distribution_numeriques(data, column):
-    plt.figure(figsize=(10, 5))
-    sns.histplot(data[column], kde=True, bins=30)
-    plt.title(f'Distribution de la colonne {column}')
-    plt.xlabel(column)
-    plt.ylabel('Fréquence')
-    plt.grid()
-    st.pyplot(plt)
-    plt.clf()  # Clear the figure after displaying to avoid overlaps
-
 # Fonction pour traiter les valeurs manquantes
 def traiter_valeurs_manquantes(data, column_to_treat, treatment_option):
     if treatment_option == "Moyenne":
@@ -113,6 +83,17 @@ def traiter_valeurs_manquantes(data, column_to_treat, treatment_option):
     
     return data
 
+# Fonction pour afficher les distributions des colonnes numériques
+def afficher_distribution_numeriques(data, column):
+    plt.figure(figsize=(10, 5))
+    sns.histplot(data[column], kde=True, bins=30)
+    plt.title(f'Distribution de la colonne {column}')
+    plt.xlabel(column)
+    plt.ylabel('Fréquence')
+    plt.grid()
+    st.pyplot(plt)
+    plt.clf()  # Clear the figure after displaying to avoid overlaps
+
 # Fonction pour afficher la matrice de corrélation
 def afficher_matrice_correlation(data):
     # Filtrer uniquement les colonnes numériques
@@ -135,7 +116,7 @@ def afficher_matrice_correlation(data):
     sns.heatmap(correlation_matrix, annot=True, cmap='coolwarm', fmt=".2f", linewidths=0.5, ax=ax)
     st.pyplot(fig)
     plt.close(fig)
-   
+
 # Fonction pour encoder les variables
 def encoder_variables(data, encoding_type, column):
     if encoding_type == "Label Encoding":
@@ -231,9 +212,6 @@ def main():
         st.write("Aperçu des données :")
         st.write(st.session_state.data.head())
         
-        st.write("Analyse descriptive des données :")
-        missing_values = afficher_analyse_descriptive(st.session_state.data)
-
         # Traitement des valeurs manquantes
         st.subheader("Traitement des valeurs manquantes")
         column_to_treat = st.selectbox("Choisissez une colonne à traiter :", st.session_state.data.columns)
