@@ -11,8 +11,11 @@ from sklearn.neighbors import KNeighborsClassifier, KNeighborsRegressor
 from sklearn.metrics import accuracy_score, mean_squared_error
 from sklearn.preprocessing import LabelEncoder, OneHotEncoder
 
-# Titre de l'application
-st.title('Application de machine learning')
+st.set_page_config(
+    page_title="Application de machine learning",
+    page_icon="📈",
+    initial_sidebar_state="expanded",
+)
 
 # Ajouter du CSS pour colorer les boutons
 st.markdown("""
@@ -258,4 +261,5 @@ def main():
             entrainer_model(st.session_state.data, model_type, target_variable, explanatory_variables, k_folds, n_neighbors)
 
 if __name__ == "__main__":
+    st.title('Application de machine learning')
     main()
