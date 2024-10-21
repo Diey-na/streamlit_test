@@ -1,4 +1,3 @@
-
 import pandas as pd
 import streamlit as st
 import matplotlib.pyplot as plt
@@ -11,8 +10,10 @@ from sklearn.svm import SVC, SVR
 from sklearn.neighbors import KNeighborsClassifier, KNeighborsRegressor
 from sklearn.metrics import accuracy_score, mean_squared_error
 from sklearn.preprocessing import LabelEncoder, OneHotEncoder
+
 # Titre de l'application
 st.title('Application de machine learning')
+
 # Ajouter du CSS pour colorer les boutons
 st.markdown("""
 <style>
@@ -32,6 +33,7 @@ st.markdown("""
     }
 </style>
 """, unsafe_allow_html=True)
+
 # Fonction pour charger les données en fonction du type de fichier
 def charger_donnees(uploaded_file, file_type):
     if file_type == "CSV":
@@ -46,6 +48,7 @@ def charger_donnees(uploaded_file, file_type):
         return pd.read_pickle(uploaded_file)
     elif file_type == "Parquet":
         return pd.read_parquet(uploaded_file)
+
 # Fonction pour afficher l'analyse descriptive
 def afficher_analyse_descriptive(data):
     st.subheader("Analyse descriptive des données")
@@ -64,24 +67,18 @@ def afficher_analyse_descriptive(data):
     st.write(missing_values)
     
     return missing_values
+
 # Fonction pour afficher les distributions des colonnes numériques
-def afficher_distribution_numeriques(data, column_to_plot):
-    st.subheader(f"Distribution de la colonne {column_to_plot}")
-    
-    # Diagramme en barres
-    st.write("Diagramme en barres :")
-    fig, ax = plt.subplots()
-    sns.histplot(data[column_to_plot].dropna(), kde=False, ax=ax)
-    st.pyplot(fig)
-    
-    # Diagramme circulaire (si c'est une variable catégorielle ou si peu de valeurs uniques)
-    if data[column_to_plot].nunique() < 10:  # Limité aux colonnes avec moins de 10 valeurs uniques
-        st.write("Diagramme circulaire :")
-        fig, ax = plt.subplots()
-        data[column_to_plot].value_counts().plot.pie(autopct='%1.1f%%', ax=ax)
-        st.pyplot(fig)
-    else:
-        st.write("Le diagramme circulaire n'est pas pertinent pour cette colonne.")
+def afficher_distribution_numeriques(data, column):
+    plt.figure(figsize=(10, 5))
+    sns.histplot(data[column], kde=True, bins=30)
+    plt.title(f'Distribution de la colonne {column}')
+    plt.xlabel(column)
+    plt.ylabel('Fréquence')
+    plt.grid()
+    st.pyplot(plt)
+    plt.clf()  # Clear the figure after displaying to avoid overlaps
+
 # Fonction pour traiter les valeurs manquantes
 def traiter_valeurs_manquantes(data, column_to_treat, treatment_option):
     if treatment_option == "Moyenne":
@@ -118,8 +115,6 @@ def traiter_valeurs_manquantes(data, column_to_treat, treatment_option):
 
 # Fonction pour afficher la matrice de corrélation
 def afficher_matrice_correlation(data):
-    #st.write("Aperçu des données avant le calcul de la matrice de corrélation :")
-    #st.write(data.head()) 
     # Filtrer uniquement les colonnes numériques
     colonnes_numeriques = data.select_dtypes(include=['float64', 'int64'])
 
@@ -151,6 +146,7 @@ def encoder_variables(data, encoding_type, column):
         data = pd.get_dummies(data, columns=[column], drop_first=True)
         st.write(f"Colonne {column} encodée avec One-Hot Encoding.")
     return data
+
 # Fonction pour décoder les variables
 def decoder_variables(data, column):
     # Simple binarisation ou conditionnelle pour démonstration
@@ -162,6 +158,7 @@ def decoder_variables(data, column):
     data[column] = np.select(conditions, choices)
     st.write(f"Colonne {column} décodée en catégories.")
     return data
+
 # Fonction pour entraîner un modèle
 def entrainer_model(data, model_type, target_variable, explanatory_variables, k_folds, n_neighbors):
     X = data[explanatory_variables]
@@ -221,112 +218,66 @@ def entrainer_model(data, model_type, target_variable, explanatory_variables, k_
         mse = mean_squared_error(y_test, predictions)
         st.write(f"Erreur quadratique moyenne sur l'ensemble de test : {mse:.2f}")
 
-    # Sauvegarder les prédictions dans un DataFrame
-    results = pd.DataFrame(data={"Réel": y_test, "Prédiction": predictions})
-    st.session_state.results = results
-
-
 # Interface de l'application
 def main():
-    st.title('Importation des données')
+    # Téléchargement de fichiers
+    st.sidebar.title("Téléchargement de données")
+    uploaded_file = st.sidebar.file_uploader("Choisissez un fichier", type=["csv", "txt", "json", "xlsx", "xls", "pickle", "parquet"])
     
-    # Liste déroulante pour choisir le type de fichier
-    file_type = st.selectbox(
-        "Sélectionnez le type de fichier à charger :",
-        ("CSV", "Texte (txt)", "JSON", "Excel (xlsx)", "Pickle", "Parquet")
-    )
-    
-    # Téléchargement du fichier
-    uploaded_file = st.file_uploader("Téléchargez votre fichier", type=['csv', 'txt', 'json', 'xlsx', 'xls', 'pkl', 'parquet'])
-    
-    # Bouton pour charger les données
-    if st.button("Charger les données", key="load_data"):
-        try:
-            st.session_state.data = charger_donnees(uploaded_file, file_type)
-            st.write("Données chargées avec succès ! Voici un aperçu :")
-            st.write(st.session_state.data.head())
-            st.session_state.missing_values = afficher_analyse_descriptive(st.session_state.data)
-            st.session_state.numeric_columns = st.session_state.data.select_dtypes(include=['float64', 'int64']).columns.tolist()
-        except Exception as e:
-            st.write(f"Erreur lors du chargement des données : {e}")
+    if uploaded_file is not None:
+        file_type = uploaded_file.type.split('/')[-1].upper()
+        st.session_state.data = charger_donnees(uploaded_file, file_type)
 
-    # Si les données ont été chargées
-    if "data" in st.session_state:
         st.write("Aperçu des données :")
         st.write(st.session_state.data.head())
         
         st.write("Analyse descriptive des données :")
-        afficher_analyse_descriptive(st.session_state.data)
+        missing_values = afficher_analyse_descriptive(st.session_state.data)
 
+        # Traitement des valeurs manquantes
+        st.subheader("Traitement des valeurs manquantes")
+        column_to_treat = st.selectbox("Choisissez une colonne à traiter :", st.session_state.data.columns)
+        treatment_option = st.selectbox("Choisissez une option de traitement :", ["Moyenne", "Médiane", "Mode", "Supprimer la colonne", "Supprimer les lignes", "Validation croisée"])
         
+        if st.button("Appliquer traitement"):
+            st.session_state.data = traiter_valeurs_manquantes(st.session_state.data, column_to_treat, treatment_option)
+
+        # Afficher la matrice de corrélation
+        afficher_matrice_correlation(st.session_state.data)
+
         # Sélectionner la colonne pour afficher la distribution
         st.subheader("Distribution des colonnes")
         all_columns = st.session_state.data.columns.tolist()
         column_to_plot = st.selectbox("Choisissez une colonne à visualiser :", all_columns)
-        if column_to_plot:
+        if column_to_plot and pd.api.types.is_numeric_dtype(st.session_state.data[column_to_plot]):
             afficher_distribution_numeriques(st.session_state.data, column_to_plot)
 
-                # Matrice de corrélation
-        if st.button("Afficher la matrice de corrélation"):
-            afficher_matrice_correlation(st.session_state.data)
-            
-        # Traitement des valeurs manquantes
-        st.subheader("Traitement des valeurs manquantes")
-        missing_values = st.session_state.data.isnull().sum()
-        columns_with_nan = missing_values[missing_values > 0].index.tolist()
-        
-        if columns_with_nan:
-            for column in columns_with_nan:
-                st.write(f"Colonne : {column}")
-                treatment_option = st.selectbox(
-                    f"Choisissez la méthode de traitement pour {column} :",
-                    ["Moyenne", "Médiane", "Mode", "Supprimer la colonne", "Supprimer les lignes", "Validation croisée"],
-                    key=column  
-                )
-                if st.button(f"Appliquer le traitement pour {column}", key=f"apply_{column}"):
-                    st.session_state.data = traiter_valeurs_manquantes(st.session_state.data, column, treatment_option)
-                    st.write(f"Nombre de valeurs manquantes pour {column} après traitement :")
-                    st.write(st.session_state.data[column].isnull().sum())
-        else:
-            st.write("Aucune colonne avec des valeurs manquantes.")
-        
-        # Encodage des variables
-        st.subheader("Encodage des Variables")
-        categorical_columns = st.selectbox("Choisissez une colonne catégorielle à encoder :", all_columns)
+        # Encoder les variables
+        st.subheader("Encodage des variables")
+        column_to_encode = st.selectbox("Choisissez une colonne à encoder :", all_columns)
         encoding_type = st.selectbox("Choisissez le type d'encodage :", ["Label Encoding", "One-Hot Encoding"])
-        if st.button("Encoder", key="encode"):
-            st.session_state.data = encoder_variables(st.session_state.data, encoding_type, categorical_columns)
-
-        # Entraînement de modèle
-        st.subheader("Entraînement de Modèle")
         
-        target_variable = st.selectbox("Choisissez la variable cible :", st.session_state.data.columns.tolist())
+        if st.button("Appliquer encodage"):
+            st.session_state.data = encoder_variables(st.session_state.data, encoding_type, column_to_encode)
+
+        # Décoder les variables
+        st.subheader("Décodage des variables")
+        column_to_decode = st.selectbox("Choisissez une colonne à décoder :", all_columns)
         
-        explanatory_variables = st.multiselect("Choisissez les variables explicatives :", 
-                                                st.session_state.data.columns.tolist(), 
-                                                default=st.session_state.data.columns.tolist()[:-1])
+        if st.button("Appliquer décodage"):
+            st.session_state.data = decoder_variables(st.session_state.data, column_to_decode)
 
-        # Ajouter K-Folds et K pour les K-plus proches voisins
-        k_folds = st.number_input("Nombre de folds pour K-Fold (validation croisée)", min_value=2, max_value=20, value=5)
-        n_neighbors = st.number_input("Nombre de voisins pour KNN", min_value=1, max_value=20, value=5)
+        # Entraîner un modèle
+        st.subheader("Entraînement du modèle")
+        model_type = st.selectbox("Choisissez un modèle :", ["Régression Logistique", "Arbre de Décision (Classification)", "SVM (Classification)", "KNN (Classification)", 
+                                                            "Arbre de Décision (Régression)", "Régression Linéaire", "SVM (Régression)", "KNN (Régression)"])
+        target_variable = st.selectbox("Choisissez la variable cible :", all_columns)
+        explanatory_variables = st.multiselect("Choisissez les variables explicatives :", all_columns, default=[all_columns[0]])
+        k_folds = st.number_input("Choisissez le nombre de folds pour la validation croisée :", min_value=2, max_value=10, value=5)
+        n_neighbors = st.number_input("Choisissez le nombre de voisins pour KNN :", min_value=1, max_value=20, value=5)
 
-        model_type = st.selectbox("Choisissez le type de modèle :", 
-                                   ["Régression Logistique", "Arbre de Décision (Classification)", "SVM (Classification)", 
-                                    "KNN (Classification)", "Arbre de Décision (Régression)", "Régression Linéaire", 
-                                    "SVM (Régression)", "KNN (Régression)"])
-
-        # Bouton pour entraîner le modèle
-        if st.button("Entraîner le modèle", key="train_model"):
+        if st.button("Entraîner le modèle"):
             entrainer_model(st.session_state.data, model_type, target_variable, explanatory_variables, k_folds, n_neighbors)
-        
-        if "results" in st.session_state:
-            st.subheader("Résultats de Prédiction")
-            st.write(st.session_state.results)
-            
-            csv = st.session_state.results.to_csv(index=False).encode('utf-8')
-            st.download_button(label="Télécharger les résultats en CSV", data=csv, file_name='predictions.csv', mime='text/csv')
-    else:
-        st.write("Veuillez télécharger un fichier pour commencer.")
-# Exécution de l'application
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     main()
