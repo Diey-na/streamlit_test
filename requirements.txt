@@ -1,5 +1,5 @@
 pandas
-numpy
+numpy==1.23.5
 scikit-learn
 yfinance==0.1.74
 streamlit==1.10.0
