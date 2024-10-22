@@ -32,68 +32,23 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # Fonction pour charger les données
-import pandas as pd
-import streamlit as st
-
-# Fonction pour charger les données et contourner l'erreur pyarrow
 def charger_donnees(uploaded_file, file_type):
-    try:
-        # Tentative de chargement sans conversion
-        if file_type == "CSV":
-            data = pd.read_csv(uploaded_file)
-        elif file_type == "Texte (txt)":
-            data = pd.read_csv(uploaded_file, delimiter='\t')
-        elif file_type == "JSON":
-            data = pd.read_json(uploaded_file)
-        elif file_type in ["Excel (xlsx)", "Excel (xls)"]:
-            data = pd.read_excel(uploaded_file)
-        elif file_type == "Pickle":
-            data = pd.read_pickle(uploaded_file)
-        elif file_type == "Parquet":
-            data = pd.read_parquet(uploaded_file)
-        
-        return data
-    
-    except Exception as e:
-        st.error(f"Erreur lors du chargement des données : {e}")
-        
-        # Si l'erreur est liée à numpy dtype et pyarrow, convertir les colonnes problématiques
-        if "numpy.dtype" in str(e):
-            st.warning("Tentative de conversion des colonnes problématiques en chaînes de caractères.")
-            
-            # Recharger les données et convertir uniquement les colonnes de type 'object' et 'category'
-            if file_type == "CSV":
-                data = pd.read_csv(uploaded_file)
-            elif file_type == "Texte (txt)":
-                data = pd.read_csv(uploaded_file, delimiter='\t')
-            elif file_type == "JSON":
-                data = pd.read_json(uploaded_file)
-            elif file_type in ["Excel (xlsx)", "Excel (xls)"]:
-                data = pd.read_excel(uploaded_file)
-            elif file_type == "Pickle":
-                data = pd.read_pickle(uploaded_file)
-            elif file_type == "Parquet":
-                data = pd.read_parquet(uploaded_file)
-            
-            # Identifier les colonnes de type object ou category
-            problem_columns = data.select_dtypes(include=['object', 'category']).columns
-            
-            # Convertir uniquement ces colonnes en chaînes de caractères
-            data[problem_columns] = data[problem_columns].astype(str)
-            st.success("Colonnes problématiques converties en chaînes de caractères.")
-            
-            return data
-
-# Exemple d'utilisation dans l'application Streamlit
-uploaded_file = st.file_uploader("Choisissez un fichier", type=["csv", "txt", "json", "xlsx", "xls", "pickle", "parquet"])
-if uploaded_file is not None:
-    file_type = uploaded_file.type.split('/')[-1].upper()
-    data = charger_donnees(uploaded_file, file_type)
-    
-    if data is not None:
-        st.write("Aperçu des données :")
-        st.write(data.head())
-
+    """Charge le fichier selon son type."""
+    if file_type == "CSV":
+        return pd.read_csv(uploaded_file)
+    elif file_type == "Texte (txt)":
+        return pd.read_csv(uploaded_file, delimiter='\t')
+    elif file_type == "JSON":
+        return pd.read_json(uploaded_file)
+    elif file_type in ["Excel (xlsx)", "Excel (xls)"]:
+        return pd.read_excel(uploaded_file)
+    elif file_type == "Pickle":
+        return pd.read_pickle(uploaded_file)
+    elif file_type == "Parquet":
+        return pd.read_parquet(uploaded_file)
+    else:
+        st.error("Type de fichier non supporté.")
+        return None
 
 # Fonction pour afficher les informations sur les colonnes et les valeurs manquantes
 # Fonction pour afficher les types de données et les valeurs manquantes
