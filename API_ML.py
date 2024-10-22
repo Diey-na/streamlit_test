@@ -54,7 +54,7 @@ def charger_donnees(uploaded_file, file_type):
 # Fonction pour afficher les types de données et les valeurs manquantes
 def afficher_infos_colonnes(data):
     """Affiche les types de données et les valeurs manquantes."""
-    st.subheader("Types de données et valeurs manquantes")
+    st.subheader("Valeurs manquantes")
     
     # Afficher les types de données pour chaque colonne
     # dtypes = data.dtypes
