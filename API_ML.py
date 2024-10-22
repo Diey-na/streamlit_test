@@ -102,6 +102,9 @@ def traiter_valeurs_manquantes(data, column_to_treat, treatment_option):
         data.dropna(subset=[column_to_treat], inplace=True)
         st.write(f"Les lignes contenant des valeurs manquantes dans la colonne {column_to_treat} ont été supprimées.")
     
+    elif treatment_option == "Validation croisée":
+        st.write(f"Pour la colonne {column_to_treat}, un traitement par validation croisée est recommandé pour une analyse plus approfondie.")
+    
     st.write("Données après traitement des valeurs manquantes :")
     st.write(data)
     
@@ -125,6 +128,17 @@ def afficher_matrice_correlation(data):
     sns.heatmap(correlation_matrix, annot=True, cmap='coolwarm', fmt=".2f", linewidths=0.5, ax=ax)
     st.pyplot(fig)
     plt.close(fig)
+
+# Fonction pour afficher les distributions des colonnes numériques
+def afficher_distribution_numeriques(data, column):
+    plt.figure(figsize=(10, 5))
+    sns.histplot(data[column], kde=True, bins=30)
+    plt.title(f'Distribution de la colonne {column}')
+    plt.xlabel(column)
+    plt.ylabel('Fréquence')
+    plt.grid()
+    st.pyplot(plt)
+    plt.clf()  # Clear the figure after displaying to avoid overlaps
 
 # Fonction pour encoder les variables
 def encoder_variables(data, encoding_type, column):
@@ -236,8 +250,18 @@ def main():
 
 
         # Matrice de corrélation
-        if st.button("Afficher la matrice de corrélation"):
-            afficher_matrice_correlation(st.session_state.data)
+        # if st.button("Afficher la matrice de corrélation"):
+        #     afficher_matrice_correlation(st.session_state.data)
+
+                # Afficher la matrice de corrélation
+        afficher_matrice_correlation(st.session_state.data)
+
+        # Sélectionner la colonne pour afficher la distribution
+        st.subheader("Distribution des colonnes")
+        all_columns = st.session_state.data.columns.tolist()
+        column_to_plot = st.selectbox("Choisissez une colonne à visualiser :", all_columns)
+        if column_to_plot and pd.api.types.is_numeric_dtype(st.session_state.data[column_to_plot]):
+            afficher_distribution_numeriques(st.session_state.data, column_to_plot)
 
         # Traitement des valeurs manquantes
         st.subheader("Traitement des valeurs manquantes")
@@ -249,7 +273,7 @@ def main():
                 st.write(f"Colonne : {column}")
                 treatment_option = st.selectbox(
                     f"Choisissez la méthode de traitement pour {column} :",
-                    ["Moyenne", "Médiane", "Mode", "Supprimer la colonne", "Supprimer les lignes"],
+                    ["Moyenne", "Médiane", "Mode", "Supprimer la colonne", "Supprimer les lignes","Validation croisée"],
                     key=column
                 )
                 if st.button(f"Appliquer le traitement pour {column}", key=f"apply_{column}"):
@@ -300,5 +324,6 @@ def main():
 
 # Exécution de l'application
 if __name__ == "__main__":
+    st.title('Application de machine learning')
     main()
     
