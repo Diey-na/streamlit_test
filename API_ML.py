@@ -51,21 +51,25 @@ def charger_donnees(uploaded_file, file_type):
             st.error("Type de fichier non supporté.")
             return None
 
+        # Conversion de toutes les colonnes problématiques
+        st.write("Conversion des types non compatibles avec pyarrow...")
+
+        for col in data.columns:
+            if data[col].dtype == 'object':
+                # Forcer la conversion en string pour les colonnes 'object'
+                data[col] = data[col].astype(str)
+            elif pd.api.types.is_categorical_dtype(data[col]):
+                # Convertir les colonnes catégorielles en string (ou int selon le besoin)
+                data[col] = data[col].astype(str)
+            elif pd.api.types.is_bool_dtype(data[col]):
+                # Convertir les colonnes booléennes en int
+                data[col] = data[col].astype(int)
+
         return data
 
     except Exception as e:
-        # Gérer spécifiquement l'erreur pyarrow/numpy
         st.error(f"Erreur lors du chargement des données : {e}")
-
-        if "numpy.dtype" in str(e):
-            st.warning("Problème avec numpy.dtype et pyarrow. Tentative de conversion des colonnes problématiques en chaînes de caractères.")
-            # Conversion des colonnes de type object ou category en chaînes de caractères
-            data = pd.read_csv(uploaded_file) if file_type == "CSV" else pd.read_excel(uploaded_file)
-            object_columns = data.select_dtypes(include=['object', 'category']).columns
-            data[object_columns] = data[object_columns].astype(str)
-            return data
-        else:
-            return None
+        return None
 
 # Fonction pour afficher les informations sur les colonnes
 def afficher_infos_colonnes(data):
@@ -199,12 +203,15 @@ def main():
         if st.button("Afficher la matrice de corrélation"):
             afficher_matrice_correlation(st.session_state.data)
 
-        st.subheader("Encodage des Variables")
-        categorical_columns = st.selectbox("Choisissez une colonne catégorielle à encoder :", st.session_state.data.select_dtypes(include=['object']).columns.tolist())
-        encoding_type = st.selectbox("Choisissez le type d'encodage :", ["Label Encoding", "One-Hot Encoding"])
-        if st.button("Encoder", key="encode"):
-            st.session_state.data = encoder_variables(st.session_state.data, encoding_type, categorical_columns)
+        # Sélectionner les variables à encoder
+        columns_to_encode = st.multiselect("Sélectionnez les colonnes à encoder :", st.session_state.data.columns)
 
+        if columns_to_encode:
+            encoding_type = st.selectbox("Sélectionnez le type d'encodage :", ["Label Encoding", "One-Hot Encoding"])
+            for col in columns_to_encode:
+                st.session_state.data = encoder_variables(st.session_state.data, encoding_type, col)
+
+        # Section pour l'entraînement du modèle
         st.subheader("Entraînement du Modèle")
         target_variable = st.selectbox("Sélectionnez la variable cible (target) :", st.session_state.data.columns)
         explanatory_variables = st.multiselect("Sélectionnez les variables explicatives (features) :", st.session_state.data.columns)
