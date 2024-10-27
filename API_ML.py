@@ -45,7 +45,7 @@ def get_base64_of_image(image_path):
 
 def display_background():
     # Convertissez l'image en base64
-    image_base64 = get_base64_of_image("udemy_streamlit/images.png")
+    image_base64 = get_base64_of_image("images.png")
     
     # Appliquez l'image en tant que fond via CSS
     st.markdown(
