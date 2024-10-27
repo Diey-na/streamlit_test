@@ -377,4 +377,5 @@ def display_media():
 if __name__ == "__main__":
     st.title('Application de machine learning')
     main()
+    display_media()
     
