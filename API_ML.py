@@ -29,9 +29,9 @@ col_icon, col_content = st.columns([0.2, 4])  # La première colonne est étroit
 
 # Affichage de l'image comme icône dans la colonne de gauche
 with col_icon:
-    st.image(image, width=100)  
+    st.sidebar.image(image, width=100)  
 with st.container():
-    st.write("**Ingenieure Data Scientist**")  # Titre sous l'image
+    st.sidebar.write("**Ingenieure Data Scientist**")  # Titre sous l'image
 
 # Ajouter du CSS pour colorer les boutons
 st.markdown("""
