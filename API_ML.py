@@ -263,7 +263,7 @@ def entrainer_model(data, model_type, target_variable, explanatory_variables, k_
 
 # Interface de l'application
 def main():
-    st.title('Importation des données')
+    st.header('Importation des données')
     
     # Sélection du type de fichier
     file_type = st.selectbox(
