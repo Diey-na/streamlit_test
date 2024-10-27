@@ -370,7 +370,7 @@ def main():
         st.write("Veuillez télécharger un fichier pour commencer.")
 
 def display_media():
-    image = Image.open('udemy_streamlit/merci.png')
+    image = Image.open('merci.png')
     st.image(image, caption='www.alamay.com', width= 300)#width est pour la taille
 
 # Exécution de l'application
