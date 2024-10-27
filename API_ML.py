@@ -10,6 +10,9 @@ from sklearn.svm import SVC, SVR
 from sklearn.neighbors import KNeighborsClassifier, KNeighborsRegressor
 from sklearn.metrics import accuracy_score, mean_squared_error
 from sklearn.preprocessing import LabelEncoder
+from PIL import Image
+import base64
+from io import BytesIO
 
 # Configuration de l'application
 st.set_page_config(
@@ -44,10 +47,7 @@ st.markdown("""
 
 
 # Ajouter du CSS pour colorer les boutons et définir une image de fond
-import streamlit as st
-from PIL import Image
-import base64
-from io import BytesIO
+
 
 def get_base64_of_image(image_path):
     """Convertit une image en base64."""
