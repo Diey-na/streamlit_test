@@ -18,6 +18,17 @@ st.set_page_config(
     initial_sidebar_state="expanded",
 )
 
+# Chargement de l'icône/image
+image = Image.open("Photo d'Identite.jpg")  # Remplacez par le chemin de votre image
+
+# Création de colonnes avec une petite colonne pour l'icône
+col_icon, col_content = st.columns([0.2, 4])  # La première colonne est étroite pour l'icône
+
+# Affichage de l'image comme icône dans la colonne de gauche
+with col_icon:
+    st.image(image, width=100)  
+
+
 # Ajouter du CSS pour colorer les boutons
 st.markdown("""
 <style>
