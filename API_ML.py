@@ -31,6 +31,41 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
+
+# Ajouter du CSS pour colorer les boutons et définir une image de fond
+import streamlit as st
+from PIL import Image
+import base64
+from io import BytesIO
+
+def get_base64_of_image(image_path):
+    """Convertit une image en base64."""
+    with open(image_path, "rb") as image_file:
+        return base64.b64encode(image_file.read()).decode()
+
+def display_background():
+    # Convertissez l'image en base64
+    image_base64 = get_base64_of_image("udemy_streamlit/images.png")
+    
+    # Appliquez l'image en tant que fond via CSS
+    st.markdown(
+        f"""
+        <style>
+            .stApp {{
+                background-image: url("data:image/png;base64,{image_base64}");
+                background-attachment: fixed;
+                background-size: cover;
+                background-position: center;
+            }}
+        </style>
+        """,
+        unsafe_allow_html=True
+    )
+
+# Utilisation de la fonction pour afficher le fond
+display_background()
+
+
 # Fonction pour charger les données
 def charger_donnees(uploaded_file, file_type):
     """Charge le fichier selon son type."""
